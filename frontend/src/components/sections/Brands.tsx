@@ -1,22 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import { brandsData } from "@/data/brands";
 
 export default function Brands() {
-  const brands = [
-    { id: 1, name: "دیجی‌کالا", logo: "/brands/digikala.png" },
-    { id: 2, name: "اسنپ", logo: "/brands/snapp.png" },
-    { id: 3, name: "ایرانسل", logo: "/brands/irancell.png" },
-    { id: 4, name: "تپسی", logo: "/brands/tapsi.png" },
-    { id: 5, name: "فیلیمو", logo: "/brands/filimo.png" },
-    { id: 6, name: "دیوار", logo: "/brands/divar.png" },
-    { id: 7, name: "نماوا", logo: "/brands/namava.png" },
-    { id: 8, name: "علی‌بابا", logo: "/brands/alibaba.png" },
-    { id: 9, name: "همراه اول", logo: "/brands/mci.png" },
-    { id: 10, name: "باسلام", logo: "/brands/basalam.png" },
-  ];
 
-  const duplicatedBrands = [...brands, ...brands];
+
+  const duplicatedBrands = [...brandsData, ...brandsData];
 
   return (
     // اضافه کردن کلاس marquee-section برای کنترل هاور در CSS
@@ -43,13 +33,13 @@ export default function Brands() {
               key={index} 
               className="flex flex-col items-center justify-center gap-4 w-32 md:w-40 lg:w-56 group cursor-pointer px-4"
             >
-              <div className="w-20 h-20 md:w-24 md:h-24 relative flex items-center justify-center rounded-2xl bg-white shadow-sm border border-gray-100 grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 group-hover:shadow-md transition-all duration-300 group-hover:-translate-y-1">
-                {/* <Image src={brand.logo} alt={`لوگو ${brand.name}`} fill className="object-contain p-3" /> */}
+              <div className="w-20 h-20 md:w-24 md:h-24 relative flex items-center justify-center rounded-2xl bg-white shadow-sm border border-gray-100 group-hover:grayscale-0 group-hover:shadow-md transition-all duration-300 group-hover:-translate-y-1">
+                <Image src={brand.logo} alt={`لوگو ${brand.name}`} fill className="object-contain p-3" />
                 <div className="w-full h-full flex items-center justify-center text-gray-300 font-bold text-2xl group-hover:text-blue-500 transition-colors">
                   {brand.name.charAt(0)}
                 </div>
               </div>
-              <span className="text-gray-600 font-medium text-sm md:text-base transition-colors group-hover:text-blue-600">
+              <span className="text-gray-600 font-medium text-sm md:text-base transition-colors group-hover:text-blue-600 whitespace-normal text-center line-clamp-2">
                 {brand.name}
               </span>
             </div>
@@ -66,7 +56,7 @@ export default function Brands() {
           100% { transform: translate3d(50%, 0, 0); } 
         }
         .animate-marquee-rtl {
-          animation: marqueeRtl 35s linear infinite;
+          animation: marqueeRtl 70s linear infinite;
         }
         /* با هاور شدن سکشن، فقط انیمیشن متوقف می‌شود و اختلالی در رنگ‌ها ایجاد نمی‌کند */
         .animate-marquee-rtl:hover {

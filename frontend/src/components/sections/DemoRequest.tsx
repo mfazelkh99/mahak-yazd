@@ -10,7 +10,8 @@ export default function DemoRequest() {
     city: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // تایپ HTMLSelectElement حذف شد چون دیگه فقط از اینپوت متنی استفاده می‌کنیم
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -38,6 +39,8 @@ export default function DemoRequest() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                
+                {/* نام و نام خانوادگی */}
                 <div>
                   <input
                     type="text"
@@ -46,10 +49,13 @@ export default function DemoRequest() {
                     onChange={handleChange}
                     placeholder="نام و نام خانوادگی"
                     required
+                    onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('لطفاً نام و نام خانوادگی خود را وارد کنید')}
+                    onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                     className="w-full bg-gray-50/50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 text-right"
                   />
                 </div>
 
+                {/* شماره تماس */}
                 <div>
                   <input
                     type="tel"
@@ -58,41 +64,43 @@ export default function DemoRequest() {
                     onChange={handleChange}
                     placeholder="شماره تماس"
                     required
+                    onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('لطفاً شماره تماس خود را وارد کنید')}
+                    onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                     dir="rtl"
                     className="w-full bg-gray-50/50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 text-right"
                   />
                 </div>
 
+                {/* نام صنف */}
                 <div>
-                  <select
+                  <input
+                    type="text"
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
+                    placeholder="نام صنف (مثلاً: پوشاک، رستوران...)"
                     required
-                    className="w-full bg-gray-50/50 border border-gray-200 text-gray-600 text-sm rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="" disabled hidden>لطفاً نام صنف را وارد نمایید</option>
-                    <option value="store">فروشگاهی</option>
-                    <option value="service">خدماتی</option>
-                    <option value="production">تولیدی</option>
-                  </select>
+                    onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('لطفاً نام صنف خود را وارد کنید')}
+                    onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
+                    className="w-full bg-gray-50/50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 text-right"
+                  />
                 </div>
 
+                {/* نام شهر */}
                 <div>
-                  <select
+                  <input
+                    type="text"
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
+                    placeholder="نام شهر"
                     required
-                    className="w-full bg-gray-50/50 border border-gray-200 text-gray-600 text-sm rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="" disabled hidden>لطفاً نام شهر را انتخاب نمایید</option>
-                    <option value="yazd">یزد</option>
-                    <option value="meybod">میبد</option>
-                    <option value="ardakan">اردکان</option>
-                    <option value="bafgh">بافق</option>
-                  </select>
+                    onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('لطفاً نام شهر خود را وارد کنید')}
+                    onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
+                    className="w-full bg-gray-50/50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 text-right"
+                  />
                 </div>
+                
               </div>
 
               <button
