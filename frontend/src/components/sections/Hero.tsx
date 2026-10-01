@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Hero() {
     return (
-        <section className="relative pt-16 pb-12 lg:pt-8 lg:pb-24 overflow-hidden bg-gradient-to-b from-gray-50/50 to-white">
+        <section id="hero" className="relative pt-8 pb-12 lg:pb-24 overflow-hidden bg-gradient-to-b from-gray-50/50 to-white">
             <div className="container mx-auto px-4 lg:px-24">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
 
@@ -21,7 +21,7 @@ export default function Hero() {
                             {/* دکمه اصلی (توپر زرد با متن تیره) */}
                             <Link
                                 href="#features"
-                                className="w-full sm:w-auto bg-[#FBBF24] hover:bg-[#F59E0B] text-gray-900 px-8 py-3.5 rounded-full font-bold transition-all shadow-md hover:shadow-lg text-center"
+                                className="w-full sm:w-auto bg-[#FBBF24] hover:bg-[#F59E0B] text-gray-900 px-8 py-2.5 md:py-3 lg:py-3.5 rounded-full font-bold transition-all shadow-md hover:shadow-lg text-center"
                             >
                                 مشاهده امکانات و تصاویر
                             </Link>
@@ -29,7 +29,7 @@ export default function Hero() {
                             {/* دکمه ثانویه (حاشیه زرد با هاور ملایم) */}
                             <Link
                                 href="#pricing"
-                                className="w-full sm:w-auto bg-white hover:bg-yellow-50 text-gray-800 border-2 border-[#FBBF24] px-8 py-3.5 rounded-full font-bold transition-all text-center"
+                                className="w-full sm:w-auto bg-white hover:bg-yellow-50 text-gray-800 border-2 border-[#FBBF24] px-8 py-2.5 md:py-3 lg:py-3.5 rounded-full font-bold transition-all text-center"
                             >
                                لیست محصولات و قیمت
                             </Link>

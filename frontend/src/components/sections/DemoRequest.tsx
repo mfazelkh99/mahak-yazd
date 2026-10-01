@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function DemoRequest() {
   const [formData, setFormData] = useState({
@@ -10,7 +10,26 @@ export default function DemoRequest() {
     city: "",
   });
 
-  // تایپ HTMLSelectElement حذف شد چون دیگه فقط از اینپوت متنی استفاده می‌کنیم
+  // استیت جدید برای ذخیره وضعیت اتصال اینترنت
+  const [isOnline, setIsOnline] = useState(true);
+
+  // بررسی وضعیت اینترنت در لحظه لود کامپوننت و هنگام تغییر وضعیت
+  useEffect(() => {
+    // مقداردهی اولیه بر اساس وضعیت فعلی مرورگر
+    setIsOnline(navigator.onLine);
+
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -112,14 +131,27 @@ export default function DemoRequest() {
             </form>
           </div>
 
-          {/* بخش ویدیو با استفاده از Iframe آپارات */}
-          <div className="relative rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] bg-gray-100 aspect-video order-1 lg:order-2 border border-gray-100">
-            <iframe
-              src="https://www.aparat.com/video/video/embed/videohash/lcl585h/vt/frame"
-              title="ویدیوی معرفی نرم افزار محک"
-              allowFullScreen
-              className="absolute inset-0 w-full h-full border-0"
-            ></iframe>
+          {/* بخش ویدیو با مدیریت قطعی اینترنت */}
+          <div className="relative rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] bg-gray-100 aspect-video order-1 lg:order-2 border border-gray-100 flex items-center justify-center">
+            {isOnline ? (
+              <iframe
+                src="https://www.aparat.com/video/video/embed/videohash/lcl585h/vt/frame"
+                title="ویدیوی معرفی نرم افزار محک"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full border-0"
+              ></iframe>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center p-6 animate-in fade-in duration-500">
+                {/* آیکون وای‌فای قطع شده */}
+                <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3l18 18M8.5 8.5a5.5 5.5 0 017.07 0M5 12a10 10 0 0114 0m-4 4a2 2 0 11-4 0" />
+                </svg>
+                <h3 className="text-xl font-bold text-gray-700 mb-2">عدم اتصال به اینترنت</h3>
+                <p className="text-gray-500 text-sm">
+                  برای مشاهده ویدیوی معرفی نرم‌افزار، لطفاً اتصال اینترنت خود را بررسی کنید.
+                </p>
+              </div>
+            )}
           </div>
 
         </div>

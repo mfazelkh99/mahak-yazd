@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -14,20 +14,75 @@ export default function Header() {
         { title: "ارتباط با ما", href: "#contact" },
     ];
 
+    // ۱. افکت برای آپدیت شدن آدرس هنگام اسکرول
+    useEffect(() => {
+        const sections = document.querySelectorAll("section[id]");
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        window.history.replaceState(null, "", `#${entry.target.id}`);
+                    }
+                });
+            },
+            {
+                rootMargin: "-40% 0px -40% 0px",
+            }
+        );
+
+        sections.forEach((section) => observer.observe(section));
+
+        const handleScrollToTop = () => {
+            if (window.scrollY < 50) {
+                window.history.replaceState(null, "", window.location.pathname);
+            }
+        };
+        window.addEventListener("scroll", handleScrollToTop);
+
+        return () => {
+            sections.forEach((section) => observer.unobserve(section));
+            window.removeEventListener("scroll", handleScrollToTop);
+        };
+    }, []);
+
+    // ۲. تابع مدیریت کلیک روی لینک‌های منو
+    // ۲. تابع مدیریت کلیک روی لینک‌های منو
+    const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+        e.preventDefault();
+        const element = document.getElementById(targetId);
+
+        if (element) {
+            // ارتفاع هدر شما (کلاس h-20 در تیلویند برابر با 80 پیکسل است)
+            const headerHeight = 80;
+
+            // محاسبه موقعیت سکشن با در نظر گرفتن ارتفاع هدر
+            const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+            const offsetPosition = elementPosition - headerHeight;
+
+            // اسکرول نرم به موقعیت جدید
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth"
+            });
+
+            window.history.pushState(null, "", `#${targetId}`);
+        }
+    };
+
     return (
         <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all">
             <div className="container mx-auto px-4 lg:px-8">
-                <div className="flex items-center justify-between h-20">
+                <div className="flex items-center justify-between h-16 md:h-18 lg:h-20">
 
                     {/* Logo Section */}
                     <div className="flex items-center shrink-0">
-                        <Link href="/" className="flex items-center gap-2 focus:outline-none">
+                        <Link href="/" onClick={(e) => handleNavClick(e, "hero")} className="flex items-center gap-2 focus:outline-none">
                             <Image
                                 src="/logo.svg"
                                 alt="نمایندگی نرم‌افزار محک"
                                 width={80}
                                 height={80}
-                                /* تنظیم ارتفاع برای موبایل و دسکتاپ و حفظ تناسب عرض */
                                 className="w-auto h-12 lg:h-20 object-contain"
                                 priority
                             />
@@ -40,6 +95,8 @@ export default function Header() {
                             <Link
                                 key={index}
                                 href={link.href}
+                                // استفاده از onClick و حذف # از ابتدای href
+                                onClick={(e) => handleNavClick(e, link.href.replace("#", ""))}
                                 className="text-gray-700 hover:text-yellow-500 font-medium transition-colors text-sm lg:text-base"
                             >
                                 {link.title}
@@ -51,6 +108,8 @@ export default function Header() {
                     <div className="hidden md:flex items-center">
                         <Link
                             href="#demo"
+                            // اضافه شدن رویداد کلیک برای دکمه اصلی
+                            onClick={(e) => handleNavClick(e, "demo")}
                             className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-full font-medium transition-all shadow-md hover:shadow-lg text-sm lg:text-base"
                         >
                             درخواست مشاوره رایگان
@@ -91,15 +150,22 @@ export default function Header() {
                                 key={index}
                                 href={link.href}
                                 className="block px-3 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg font-medium transition-colors"
-                                onClick={() => setIsMobileMenuOpen(false)}
+                                onClick={(e) => {
+                                    // اول منو را ببند، بعد اسکرول کن
+                                    setIsMobileMenuOpen(false);
+                                    handleNavClick(e, link.href.replace("#", ""));
+                                }}
                             >
                                 {link.title}
                             </Link>
                         ))}
                         <Link
-                            href="#consultation"
+                            href="#demo" // اینجا consultation بود که به demo تغییر دادم تا با دکمه دسکتاپ یکی باشد
                             className="block mt-4 text-center bg-emerald-500 text-white px-6 py-3 rounded-xl font-medium shadow-sm"
-                            onClick={() => setIsMobileMenuOpen(false)}
+                            onClick={(e) => {
+                                setIsMobileMenuOpen(false);
+                                handleNavClick(e, "demo");
+                            }}
                         >
                             درخواست مشاوره رایگان
                         </Link>
