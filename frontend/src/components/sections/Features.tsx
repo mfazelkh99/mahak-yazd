@@ -1,26 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 
 export default function Features() {
   const sliderRef = useRef<HTMLDivElement>(null);
+  const isInteracting = useRef(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-
-  // توابع کنترل اسکرول
-  const scrollLeft = () => {
-    if (sliderRef.current && sliderRef.current.firstElementChild) {
-      const itemWidth = (sliderRef.current.firstElementChild as HTMLElement).offsetWidth;
-      sliderRef.current.scrollBy({ left: -itemWidth, behavior: "smooth" });
-    }
-  };
-
-  const scrollRight = () => {
-    if (sliderRef.current && sliderRef.current.firstElementChild) {
-      const itemWidth = (sliderRef.current.firstElementChild as HTMLElement).offsetWidth;
-      sliderRef.current.scrollBy({ left: itemWidth, behavior: "smooth" });
-    }
-  };
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   const screenshots = [
     "/features/screenshot-01.png",
@@ -36,6 +23,73 @@ export default function Features() {
     "/features/screenshot-11.png",
   ];
 
+  // ۱. تشخیص اسلاید فعال هنگام اسکرول
+  useEffect(() => {
+    const container = sliderRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.getAttribute("data-index"));
+            setActiveSlideIndex(index);
+          }
+        });
+      },
+      { root: container, threshold: 0.6 }
+    );
+
+    const slides = container.querySelectorAll(".screenshot-slide");
+    slides.forEach((slide) => observer.observe(slide));
+
+    return () => observer.disconnect();
+  }, []);
+
+  // ۲. منطق حرکت خودکار اسلایدر (محدود شده به فقط موبایل)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      // فقط در صورتی اجرا شود که عرض صفحه کمتر از 768 پیکسل (موبایل) باشد
+      const isMobile = window.innerWidth < 768;
+
+      if (isMobile && !isInteracting.current && lightboxIndex === null) {
+        const nextIndex = (activeSlideIndex + 1) % screenshots.length;
+        scrollToSlide(nextIndex);
+      }
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, [activeSlideIndex, lightboxIndex, screenshots.length]);
+
+  // ۳. توابع کنترل اسکرول
+  const scrollToSlide = (index: number) => {
+    const container = sliderRef.current;
+    const slide = container?.querySelector(`[data-index="${index}"]`) as HTMLElement;
+
+    if (container && slide) {
+      // به جای درگیر کردن اسکرول کل صفحه، فقط نوار افقی داخل کانتینر را جابجا می‌کنیم
+      // با این کار صفحه دیگر به صورت خودکار به بالا یا پایین نمی‌پرد
+      container.scrollTo({
+        left: slide.offsetLeft,
+        behavior: "smooth"
+      });
+    }
+  };
+
+  const scrollLeft = () => {
+    if (sliderRef.current && sliderRef.current.firstElementChild) {
+      const itemWidth = (sliderRef.current.firstElementChild as HTMLElement).offsetWidth;
+      sliderRef.current.scrollBy({ left: -itemWidth, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    if (sliderRef.current && sliderRef.current.firstElementChild) {
+      const itemWidth = (sliderRef.current.firstElementChild as HTMLElement).offsetWidth;
+      sliderRef.current.scrollBy({ left: itemWidth, behavior: "smooth" });
+    }
+  };
+
   const openLightbox = (index: number) => setLightboxIndex(index);
   const closeLightbox = () => setLightboxIndex(null);
 
@@ -49,11 +103,11 @@ export default function Features() {
     if (lightboxIndex !== null) setLightboxIndex((lightboxIndex - 1 + screenshots.length) % screenshots.length);
   };
 
-  // لیست امکانات با آیکون‌های جدید و مرتبط
+  // لیست امکانات
   const featuresList = [
     {
-      id: 1, 
-      title: "خدمات پس از فروش حرفه ای", 
+      id: 1,
+      title: "خدمات پس از فروش حرفه ای",
       desc: "همراهی و پشتیبانی پس از خرید",
       icon: (
         <svg className="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -63,8 +117,8 @@ export default function Features() {
       bgColor: "bg-blue-50",
     },
     {
-      id: 2, 
-      title: "آموزش اختصاصی رایگان", 
+      id: 2,
+      title: "آموزش اختصاصی رایگان",
       desc: "آموزش حضوری یا آنلاین، اختصاصی برای هر مشتری و در اختیار قراردادن ویدیوی جلسه آموزش",
       icon: (
         <svg className="w-8 h-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -74,8 +128,8 @@ export default function Features() {
       bgColor: "bg-yellow-50",
     },
     {
-      id: 3, 
-      title: "قیمت مناسب", 
+      id: 3,
+      title: "قیمت مناسب",
       desc: "امکانات کاربردی، قیمت اقتصادی و مقرون به صرفه",
       icon: (
         <svg className="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -86,8 +140,8 @@ export default function Features() {
       bgColor: "bg-emerald-50",
     },
     {
-      id: 4, 
-      title: "رابط کاربری آسان", 
+      id: 4,
+      title: "رابط کاربری آسان",
       desc: "طراحی کاربر پسند و گرافیکی",
       icon: (
         <svg className="w-8 h-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -97,8 +151,8 @@ export default function Features() {
       bgColor: "bg-indigo-50",
     },
     {
-      id: 5, 
-      title: "ارائه گزارش های مختلف مالی", 
+      id: 5,
+      title: "ارائه گزارش های مختلف مالی",
       desc: "گزارش های متنوع و دقیق برای تصمیم گیری بهتر",
       icon: (
         <svg className="w-8 h-8 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -108,8 +162,8 @@ export default function Features() {
       bgColor: "bg-rose-50",
     },
     {
-      id: 6, 
-      title: "مناسب برای تمامی کسب و کار ها", 
+      id: 6,
+      title: "مناسب برای تمامی کسب و کار ها",
       desc: "متناسب با نیاز هر صنف و کسب و کار",
       icon: (
         <svg className="w-8 h-8 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -119,8 +173,8 @@ export default function Features() {
       bgColor: "bg-cyan-50",
     },
     {
-      id: 7, 
-      title: "اتصال به سامانه مودیان", 
+      id: 7,
+      title: "اتصال به سامانه مودیان",
       desc: "جهت ارسال صورتحساب های الکترونیکی",
       icon: (
         <svg className="w-8 h-8 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -130,8 +184,8 @@ export default function Features() {
       bgColor: "bg-orange-50",
     },
     {
-      id: 8, 
-      title: "اتصال به سخت افزار های مختلف", 
+      id: 8,
+      title: "اتصال به سخت افزار های مختلف",
       desc: "اتصال به انواع پرینتر، بارکد خوان، کارت خوان، ترازو",
       icon: (
         <svg className="w-8 h-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -156,66 +210,90 @@ export default function Features() {
             </p>
           </div>
 
-          {/* کانتینر اصلی اسلایدر با چیدمان Flex */}
-          <div className="mb-24 flex items-center justify-center gap-4 lg:gap-8 max-w-[1400px] mx-auto w-full">
-            {/* دکمه راست (فلش در کنار باکس قرار دارد) */}
-            <button
-              onClick={scrollRight}
-              className="flex-shrink-0 z-20 bg-white shadow-md text-gray-800 p-3 lg:p-4 rounded-full border border-gray-100 hidden md:flex transition-all hover:scale-110 hover:text-blue-600"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            {/* باکس مرکزی (محدودکننده عکس‌ها) */}
-            <div className="flex-1 overflow-hidden">
-              <div
-                ref={sliderRef}
-                className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-3"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          <div
+            className="mb-24 flex flex-col items-center justify-center max-w-[1400px] mx-auto w-full"
+            onMouseEnter={() => (isInteracting.current = true)}
+            onMouseLeave={() => (isInteracting.current = false)}
+            onTouchStart={() => (isInteracting.current = true)}
+            onTouchEnd={() => setTimeout(() => (isInteracting.current = false), 2000)}
+          >
+            {/* کانتینر اصلی اسلایدر */}
+            <div className="flex items-center justify-center gap-4 lg:gap-8 w-full">
+              {/* دکمه راست (دسکتاپ) */}
+              <button
+                onClick={scrollRight}
+                className="flex-shrink-0 z-20 bg-white shadow-md text-gray-800 p-3 lg:p-4 rounded-full border border-gray-100 hidden md:flex transition-all hover:scale-110 hover:text-blue-600"
               >
-                {screenshots.map((src, index) => (
-                  <div
-                    key={index}
-                    className="w-full md:w-1/2 lg:w-1/3 flex-shrink-0 snap-start px-3"
-                  >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* باکس مرکزی تصاویر */}
+              <div className="flex-1 overflow-hidden">
+                <div
+                  ref={sliderRef}
+                  className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-3 pb-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {screenshots.map((src, index) => (
                     <div
-                      onClick={() => openLightbox(index)}
-                      className="aspect-video rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-50 relative cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-md group/card flex items-center justify-center"
+                      key={index}
+                      data-index={index}
+                      className="screenshot-slide w-full md:w-1/2 lg:w-1/3 flex-shrink-0 snap-center px-3"
                     >
-                      <div className="absolute inset-0 flex items-center justify-center text-gray-400 font-medium z-0">
-                        اسکرین‌شات {index + 1}
-                      </div>
+                      <div
+                        onClick={() => openLightbox(index)}
+                        className="aspect-video rounded-xl overflow-hidden shadow-sm border border-gray-200 bg-gray-50 relative cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-md group/card flex items-center justify-center"
+                      >
+                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 font-medium z-0">
+                          اسکرین‌شات {index + 1}
+                        </div>
 
-                      <Image
-                        src={src}
-                        alt={`محیط نرم افزار محک ${index + 1}`}
-                        fill
-                        className="object-cover z-10"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
+                        <Image
+                          src={src}
+                          alt={`محیط نرم افزار محک ${index + 1}`}
+                          fill
+                          className="object-cover z-10"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
 
-                      <div className="absolute inset-0 bg-blue-900/20 opacity-0 group-hover/card:opacity-100 transition-opacity z-20 flex items-center justify-center">
-                        <svg className="w-10 h-10 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                        <div className="absolute inset-0 bg-blue-900/20 opacity-0 group-hover/card:opacity-100 transition-opacity z-20 flex items-center justify-center">
+                          <svg className="w-10 h-10 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+
+              {/* دکمه چپ (دسکتاپ) */}
+              <button
+                onClick={scrollLeft}
+                className="flex-shrink-0 z-20 bg-white shadow-md text-gray-800 p-3 lg:p-4 rounded-full border border-gray-100 hidden md:flex transition-all hover:scale-110 hover:text-blue-600"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
             </div>
 
-            {/* دکمه چپ (فلش در کنار باکس قرار دارد) */}
-            <button
-              onClick={scrollLeft}
-              className="flex-shrink-0 z-20 bg-white shadow-md text-gray-800 p-3 lg:p-4 rounded-full border border-gray-100 hidden md:flex transition-all hover:scale-110 hover:text-blue-600"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
+            {/* نقطه‌های راهنما (Pagination Dots) - کلاس md:hidden اضافه شد */}
+            <div className="flex md:hidden items-center justify-center gap-2 mt-6">
+              {screenshots.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => scrollToSlide(index)}
+                  aria-label={`برو به تصویر ${index + 1}`}
+                  className={`transition-all duration-300 rounded-full ${activeSlideIndex === index
+                      ? "w-2.5 h-2.5 bg-blue-600"
+                      : "w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400"
+                    }`}
+                />
+              ))}
+            </div>
           </div>
 
           {/* گرید امکانات */}
@@ -234,7 +312,7 @@ export default function Features() {
         </div>
       </section>
 
-      {/* مدال لایت‌باکس (تمام‌صفحه) */}
+      {/* مدال لایت‌باکس */}
       {lightboxIndex !== null && (
         <div
           className="fixed inset-0 z-[100] bg-gray-900/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"

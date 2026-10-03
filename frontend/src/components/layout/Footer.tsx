@@ -78,7 +78,7 @@ export default function Footer() {
           </div>
 
           {/* ستون سوم: پیام‌رسان‌ها */}
-          <div className="space-y-6  pt-7">
+          <div className="space-y-6  pt-7 md:col-span-2 lg:col-span-1">
             <h3 className="text-gray-900 text-lg font-bold border-b-2 border-gray-200 pb-3 inline-block">
               ارتباط در پیام‌رسان‌ها
             </h3>
