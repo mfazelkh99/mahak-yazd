@@ -3,15 +3,59 @@
 import { useState, useEffect } from "react";
 
 export default function DemoRequest() {
+  // ۱. تعریف استیت‌ها برای ذخیره اطلاعات فرم
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
-    category: "",
+    job: "",
     city: "",
   });
 
+  // ۲. تعریف استیت‌ها برای مدیریت وضعیت ارسال و پیام‌ها
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" }); // type: "success" | "error"
+
   // استیت جدید برای ذخیره وضعیت اتصال اینترنت
   const [isOnline, setIsOnline] = useState(true);
+
+  // مدیریت تغییرات ورودی‌ها
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // ۳. تابع اصلی برای ارسال اطلاعات به سمت بک‌اند
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // جلوگیری از رفرش شدن صفحه
+    setLoading(true);
+    setMessage({ text: "", type: "" });
+
+    try {
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // پیام موفقیت و خالی کردن فرم
+        setMessage({ text: "اطلاعات شما با موفقیت ثبت شد. همکاران ما به زودی با شما تماس می‌گیرند.", type: "success" });
+        setFormData({ fullName: "", phone: "", job: "", city: "" });
+      } else {
+        // پیام خطای برگشتی از سمت بک‌اند
+        setMessage({ text: data.error || "خطایی در ثبت اطلاعات رخ داد.", type: "error" });
+      }
+    } catch (error) {
+      console.error("Submit Error:", error);
+      setMessage({ text: "خطا در ارتباط با سرور. لطفاً اتصال اینترنت خود را بررسی کنید.", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // بررسی وضعیت اینترنت در لحظه لود کامپوننت و هنگام تغییر وضعیت
   useEffect(() => {
@@ -30,21 +74,11 @@ export default function DemoRequest() {
     };
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form Data Submitted:", formData);
-    alert("درخواست شما با موفقیت ثبت شد. همکاران ما به زودی با شما تماس خواهند گرفت.");
-  };
-
   return (
     <section id="demo" className="py-20 bg-gradient-to-b from-blue-50/40 to-white">
       <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-          
+
           {/* بخش فرم */}
           <div className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 z-10 order-2 lg:order-1">
             <div className="text-center mb-8">
@@ -58,7 +92,7 @@ export default function DemoRequest() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                
+
                 {/* نام و نام خانوادگی */}
                 <div>
                   <input
@@ -94,8 +128,8 @@ export default function DemoRequest() {
                 <div>
                   <input
                     type="text"
-                    name="category"
-                    value={formData.category}
+                    name="job"
+                    value={formData.job}
                     onChange={handleChange}
                     placeholder="نام صنف (مثلاً: پوشاک، رستوران...)"
                     required
@@ -119,14 +153,27 @@ export default function DemoRequest() {
                     className="w-full bg-gray-50/50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 text-right"
                   />
                 </div>
-                
+
               </div>
+
+              {/* نمایش پیام‌های موفقیت یا خطا به کاربر */}
+              {message.text && (
+                <div className={`p-4 rounded-xl text-sm font-bold text-center ${message.type === 'success' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+                  {message.text}
+                </div>
+              )}
+
+              {/* دکمه ثبت (با قابلیت نمایش وضعیت لودینگ) */}
 
               <button
                 type="submit"
-                className="w-full bg-[#FBBF24] hover:bg-[#F59E0B] text-gray-900 text-lg font-bold rounded-xl py-3.5 mt-4 transition-all shadow-md hover:shadow-lg"
+                disabled={loading}
+                className={`w-full bg-[#FBBF24] hover:bg-[#F59E0B] text-gray-900 text-lg font-bold rounded-xl py-3.5 mt-4 transition-all shadow-md hover:shadow-lg ${loading
+                    ? "bg-gray-200 cursor-not-allowed"
+                    : "bg-[#FBBF24] hover:bg-[#F59E0B] shadow-md hover:shadow-lg"
+                  }`}
               >
-                ثبت
+                {loading ? "در حال ثبت اطلاعات..." : "ثبت"}
               </button>
             </form>
           </div>
