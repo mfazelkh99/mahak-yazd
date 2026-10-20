@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     // اگر کاربر قصد ورود به مسیرهای ادمین را دارد
     if (request.nextUrl.pathname.startsWith('/admin')) {
 

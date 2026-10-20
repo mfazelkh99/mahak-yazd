@@ -44,7 +44,7 @@ export default function Footer() {
             <ul className="space-y-4">
               <li>
                 <a
-                  href="tel:03512345678"
+                  href="tel:03537245037"
                   className="flex items-center gap-3 hover:text-[#FBBF24] transition-colors group"
                 >
                   <div className="bg-white border border-gray-200 p-2.5 rounded-xl group-hover:bg-[#FBBF24]/20 group-hover:[#FBBF24]/5 transition-colors shadow-sm">
@@ -60,7 +60,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="tel:09131234567"
+                  href="tel:09103839053"
                   className="flex items-center gap-3 text-[#FBBF24] transition-colors group"
                 >
                   <div className="bg-white border border-gray-200 p-2.5 rounded-xl group-hover:bg-[#FBBF24]/20 group-hover:[#FBBF24]/5 transition-colors shadow-sm">

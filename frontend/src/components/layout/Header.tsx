@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    const menuRef = useRef<HTMLElement>(null);
     const navLinks = [
         { title: "محیط نرم‌افزار و امکانات", href: "#features" },
         { title: "لیست قیمت", href: "#pricing" },
@@ -46,6 +47,29 @@ export default function Header() {
         };
     }, []);
 
+    // افکت برای بستن منوی موبایل هنگام کلیک یا لمس بیرون از منو
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+            // اگر منو باز است و جایی که کلیک شده داخل هدر (menuRef) نیست، منو را ببند
+            if (
+                isMobileMenuOpen &&
+                menuRef.current &&
+                !menuRef.current.contains(event.target as Node)
+            ) {
+                setIsMobileMenuOpen(false);
+            }
+        };
+
+        // گوش دادن به رویداد کلیک موس و لمس صفحه موبایل
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("touchstart", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("touchstart", handleClickOutside);
+        };
+    }, [isMobileMenuOpen]);
+
     // ۲. تابع مدیریت کلیک روی لینک‌های منو
     // ۲. تابع مدیریت کلیک روی لینک‌های منو
     const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
@@ -71,7 +95,7 @@ export default function Header() {
     };
 
     return (
-        <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all">
+        <header ref={menuRef} className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all">
             <div className="container mx-auto px-4 lg:px-8">
                 <div className="flex items-center justify-between h-16 md:h-18 lg:h-20">
 
